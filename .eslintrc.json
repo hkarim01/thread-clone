@@ -1,3 +1,24 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": [
+    "next/core-web-vitals",
+    "eslint:recommended",
+    "plugin:prettier/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
+  ],
+
+  "plugins": ["prettier", "react", "react-hooks", "@typescript-eslint"],
+
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true
+  },
+
+  "rules": {
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-empty-function": "off",
+    "react-hooks/rules-of-hooks": "error", // For checking rules of hooks
+    "react-hooks/exhaustive-deps": "warn" // For checking hook dependencies
+  }
 }
