@@ -1,10 +1,15 @@
 import UserCard from "@/components/cards/UserCard";
+import Searchbar from "@/components/shared/Searchbar";
 import { fetchUser, fetchUsers } from "@/lib/actions/user.actions";
 import { appRoutes } from "@/lib/route_map";
 import { currentUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 
-const page = async () => {
+const page = async ({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | undefined };
+}) => {
   const user = await currentUser();
   if (!user) return null;
 
@@ -13,7 +18,7 @@ const page = async () => {
 
   const searchResults = await fetchUsers({
     userId: user.id,
-    searchString: "",
+    searchString: searchParams.q,
     pageNumber: 1,
     pageSize: 20,
   });
@@ -21,6 +26,8 @@ const page = async () => {
   return (
     <section>
       <h1 className="head-text mb-10">Search</h1>
+
+      <Searchbar routeType="search" />
 
       <div className="mt-14 flex flex-col gap-9">
         {searchResults.users.length === 0 ? (

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import Thread from "../models/thread.model";
 import User from "../models/user.model";
+import Community from "../models/community.model";
 import { connectToDB } from "../mongoose";
 
 export interface createThreadParams {
@@ -28,16 +29,28 @@ export async function createThread({
   try {
     connectToDB();
 
+    const communityIdObject = await Community.findOne(
+      { id: communityId },
+      { _id: 1 }
+    );
+
     const createdThread = await Thread.create({
       text,
       author,
-      community: communityId,
+      community: communityIdObject,
     });
 
     // Update user
     await User.findByIdAndUpdate(author, {
       $push: { threads: createdThread._id },
     });
+
+    if (communityIdObject) {
+      // Update Community model
+      await Community.findByIdAndUpdate(communityIdObject, {
+        $push: { threads: createdThread._id },
+      });
+    }
 
     revalidatePath(path);
   } catch (error: any) {
@@ -56,6 +69,7 @@ export async function fetchThreadById(id: string) {
         model: User,
         select: "_id id name image",
       })
+      .populate({ path: "community", model: Community })
       .populate({
         path: "children",
         populate: [
@@ -95,6 +109,7 @@ export async function fetchThreads(pageNumber = 1, pageSize = 20) {
       .skip(skipAmount)
       .limit(pageSize)
       .populate({ path: "author", model: User })
+      .populate({ path: "community", model: Community })
       .populate({
         path: "children",
         populate: {
@@ -147,5 +162,33 @@ export async function addCommentToThread({
     revalidatePath(path);
   } catch (error: any) {
     throw new Error(`Failed to add the comment: ${error.message}`);
+  }
+}
+
+export async function likeThread({
+  userId,
+  threadId,
+  isAlreadyLiked,
+  path,
+}: {
+  userId: string;
+  threadId: string;
+  isAlreadyLiked: boolean;
+  path: string;
+}) {
+  try {
+    connectToDB();
+
+    const thread = await Thread.findById(threadId);
+
+    if (userId) {
+      isAlreadyLiked ? thread.likes.pull(userId) : thread.likes.push(userId);
+      await thread.save();
+    }
+
+    revalidatePath(path);
+  } catch (error) {
+    console.log("Failed to like the thread: ", error);
+    throw error;
   }
 }

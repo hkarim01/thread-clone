@@ -7,6 +7,7 @@ export interface ProfileHeaderProps {
   username: string;
   imgUrl: string;
   bio: string;
+  type?: "User" | "Community";
 }
 
 const ProfileHeader = ({
@@ -16,6 +17,7 @@ const ProfileHeader = ({
   username,
   imgUrl,
   bio,
+  type,
 }: ProfileHeaderProps) => {
   return (
     <div className="flex flex-col w-full justify-start">

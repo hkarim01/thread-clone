@@ -2,7 +2,7 @@ export const appRoutes = {
   activity: () => "/activity",
   comment: (parentId: string, commentId: string) =>
     `/thread/${parentId}#thread_${commentId}`,
-  communities: () => "/communities",
+  communities: (id?: string) => (id ? `/communities/${id}` : "/communities/"),
   createThread: () => "/create/thread",
   editProfile: () => "/profile/edit",
   home: () => "/",

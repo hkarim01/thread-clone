@@ -18,11 +18,16 @@ import { Button } from "../ui/button";
 import { createThread } from "@/lib/actions/thread.actions";
 import { appRoutes } from "@/lib/route_map";
 import { useState } from "react";
+import { useOrganization } from "@clerk/nextjs";
 
 const PostThread = ({ userId }: { userId: string }) => {
+  userId = JSON.parse(userId);
   const [isLoading, setIsLoading] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  const { organization } = useOrganization();
+
+  console.log("Organization: ", organization);
 
   const form = useForm({
     resolver: zodResolver(ThreadValidation),
@@ -33,12 +38,13 @@ const PostThread = ({ userId }: { userId: string }) => {
   });
 
   const onSubmit = async (values: z.infer<typeof ThreadValidation>) => {
+    console.log("Organization: ", organization);
     setIsLoading(true);
     try {
       await createThread({
         text: values.thread,
         author: userId,
-        communityId: null,
+        communityId: organization ? organization.id : null,
         path: pathname,
       });
     } catch (error) {

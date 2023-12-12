@@ -1,6 +1,9 @@
 import { appRoutes } from "@/lib/route_map";
+import { formatDateString } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+import { Button } from "../ui/button";
+import ReactButton from "../shared/ReactButton";
 
 interface ThreadCardProps {
   id: string;
@@ -11,6 +14,7 @@ interface ThreadCardProps {
     name: string;
     image: string;
     id: string;
+    _id: string;
   };
   community: {
     id: string;
@@ -18,6 +22,7 @@ interface ThreadCardProps {
     image: string;
   } | null;
   createdAt: string;
+  likes: string[];
   comments: {
     author: {
       image: string;
@@ -34,12 +39,14 @@ function ThreadCard({
   author,
   community,
   createdAt,
+  likes,
   comments,
   isComment,
 }: ThreadCardProps) {
+  const threadIdObject = JSON.parse(id);
   return (
     <article
-      id={`thread_${id}`}
+      id={`thread_${threadIdObject}`}
       className={`flex w-full flex-col rounded-xl ${
         isComment ? "px-0 xs:px-7" : "bg-dark-2 p-7"
       }`}
@@ -73,14 +80,12 @@ function ThreadCard({
 
             <div className={`${isComment && "mb-10"} mt-5 flex flex-col gap-3`}>
               <div className="flex gap-3.5">
-                <Image
-                  src="/assets/heart-gray.svg"
-                  alt="heart"
-                  width={24}
-                  height={24}
-                  className="cursor-pointer object-contain"
+                <ReactButton
+                  threadId={id}
+                  userId={currentUserId}
+                  likes={likes}
                 />
-                <Link href={appRoutes.thread(id)}>
+                <Link href={appRoutes.thread(threadIdObject)}>
                   <Image
                     src="/assets/reply.svg"
                     alt="heart"
@@ -106,7 +111,7 @@ function ThreadCard({
               </div>
 
               {isComment && comments.length > 0 && (
-                <Link href={appRoutes.thread(id)}>
+                <Link href={appRoutes.thread(threadIdObject)}>
                   <p className="mt-1 text-subtle-medium text-gray-1">
                     {comments.length} repl{comments.length > 1 ? "ies" : "y"}
                   </p>
@@ -116,6 +121,26 @@ function ThreadCard({
           </div>
         </div>
       </div>
+
+      {!isComment && community && (
+        <Link
+          href={`/communities/${community.id}`}
+          className="mt-5 flex items-center"
+        >
+          <p className="text-subtle-medium text-gray-1">
+            {formatDateString(createdAt)}
+            {community && ` - ${community.name} Community`}
+          </p>
+
+          <Image
+            src={community.image}
+            alt={community.name}
+            width={20}
+            height={20}
+            className="ml-1 rounded-full object-cover"
+          />
+        </Link>
+      )}
     </article>
   );
 }

@@ -6,6 +6,7 @@ import { connectToDB } from "../mongoose";
 import { revalidatePath } from "next/cache";
 import { appRoutes } from "../route_map";
 import { FilterQuery, SortOrder } from "mongoose";
+import Community from "../models/community.model";
 
 export interface updateUserParams {
   id: string;
@@ -76,11 +77,11 @@ export async function fetchUserThreads(userId: string) {
       path: "threads",
       model: Thread,
       populate: [
-        // {
-        //   path: "community",
-        //   model: Community,
-        //   select: "name id image _id", // Select the "name" and "_id" fields from the "Community" model
-        // },
+        {
+          path: "community",
+          model: Community,
+          select: "name id image _id", // Select the "name" and "_id" fields from the "Community" model
+        },
         {
           path: "children",
           model: Thread,

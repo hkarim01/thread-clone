@@ -22,13 +22,14 @@ const page = async ({ params }: { params: { id: string } }) => {
       <div>
         <ThreadCard
           key={thread._id}
-          id={thread._id}
-          currentUserId={user.id}
+          id={JSON.stringify(thread._id)}
+          currentUserId={JSON.stringify(userInfo._id)}
           parentId={thread.parentId}
           content={thread.text}
           author={thread.author}
           community={thread.community}
           createdAt={thread.createdAt}
+          likes={thread.likes}
           comments={thread.children}
           isComment={false}
         />
@@ -46,13 +47,14 @@ const page = async ({ params }: { params: { id: string } }) => {
         {thread.children.map((childThread: any) => (
           <ThreadCard
             key={childThread._id}
-            id={childThread._id}
-            currentUserId={user.id}
+            id={JSON.stringify(childThread._id)}
+            currentUserId={JSON.stringify(userInfo._id)}
             parentId={childThread.parentId}
             content={childThread.text}
             author={childThread.author}
             community={childThread.community}
             createdAt={childThread.createdAt}
+            likes={thread.likes}
             comments={childThread.children}
             isComment={true}
           />

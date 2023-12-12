@@ -55,7 +55,7 @@ const page = async ({ params }: { params: { id: string } }) => {
               className="w-full text-light-1"
             >
               <ThreadsTab
-                currentUserId={user.id}
+                currentUserId={JSON.stringify(userInfo._id)}
                 accountId={userInfo.id}
                 accountType="User"
               />

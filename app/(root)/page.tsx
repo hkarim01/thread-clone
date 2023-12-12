@@ -1,10 +1,13 @@
 import ThreadCard from "@/components/cards/ThreadCard";
 import { fetchThreads } from "@/lib/actions/thread.actions";
+import { fetchUser } from "@/lib/actions/user.actions";
 import { currentUser } from "@clerk/nextjs";
 
 export default async function Home() {
   const user = await currentUser();
   if (!user) return null;
+
+  const userInfo = await fetchUser(user.id);
 
   const { threads, isNext } = await fetchThreads(1, 20);
 
@@ -20,13 +23,14 @@ export default async function Home() {
             {threads.map((thread) => (
               <ThreadCard
                 key={thread._id}
-                id={thread._id}
-                currentUserId={user.id}
+                id={JSON.stringify(thread._id)}
+                currentUserId={JSON.stringify(userInfo._id)}
                 parentId={thread.parentId}
                 content={thread.text}
                 author={thread.author}
                 community={thread.community}
                 createdAt={thread.createdAt}
+                likes={thread.likes}
                 comments={thread.children}
                 isComment={false}
               />

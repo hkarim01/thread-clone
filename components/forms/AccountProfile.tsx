@@ -210,16 +210,6 @@ const AccountProfile: FC<AccountProfileProps> = ({ user, btnTitle }) => {
           )}
         />
         <Button type="submit" className="bg-primary-500" isLoading={isLoading}>
-          {/* {isLoading ? (
-            <Image
-              src="/assets/loaderSimple.svg"
-              alt="loader"
-              width={24}
-              height={24}
-            />
-          ) : (
-            btnTitle
-          )} */}
           {btnTitle}
         </Button>
       </form>
