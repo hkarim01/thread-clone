@@ -19,7 +19,7 @@ const page = async ({
   const searchResults = await fetchUsers({
     userId: user.id,
     searchString: searchParams.q,
-    pageNumber: 1,
+    pageNumber: searchParams.page ? +searchParams.page : 1,
     pageSize: 20,
   });
 

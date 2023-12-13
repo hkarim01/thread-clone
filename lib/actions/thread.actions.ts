@@ -168,12 +168,12 @@ export async function addCommentToThread({
 export async function likeThread({
   userId,
   threadId,
-  isAlreadyLiked,
+  isLiked,
   path,
 }: {
   userId: string;
   threadId: string;
-  isAlreadyLiked: boolean;
+  isLiked: boolean;
   path: string;
 }) {
   try {
@@ -182,7 +182,7 @@ export async function likeThread({
     const thread = await Thread.findById(threadId);
 
     if (userId) {
-      isAlreadyLiked ? thread.likes.pull(userId) : thread.likes.push(userId);
+      isLiked ? thread.likes.pull(userId) : thread.likes.push(userId);
       await thread.save();
     }
 

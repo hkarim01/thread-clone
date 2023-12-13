@@ -44,6 +44,15 @@ function ThreadCard({
   isComment,
 }: ThreadCardProps) {
   const threadIdObject = JSON.parse(id);
+
+  const commentAuthorImages = comments?.reduce((acc: string[], comment) => {
+    // if (!acc.includes(comment.author.image)) {
+    return acc.concat(comment.author.image);
+    // } else {
+    //   return acc;
+    // }
+  }, []);
+
   return (
     <article
       id={`thread_${threadIdObject}`}
@@ -141,6 +150,49 @@ function ThreadCard({
           />
         </Link>
       )}
+
+      <div className="flex items-center mt-4">
+        {!isComment && comments.length > 0 && (
+          <Link href={appRoutes.thread(threadIdObject)}>
+            <div className="flex items-center">
+              {commentAuthorImages.slice(0, 3).map((image, index) => (
+                <Image
+                  key={index}
+                  src={image}
+                  alt={`user_${index}`}
+                  width={28}
+                  height={28}
+                  className={`${
+                    index !== 0 && "-ml-2"
+                  } rounded-full object-cover w-7 h-7 avatar-image`}
+                />
+              ))}
+              {commentAuthorImages.length > 3 && (
+                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-gray-500 -ml-2 avatar-image">
+                  <p className="text-tiny-medium text-light-1">
+                    +{commentAuthorImages.length - 3}
+                  </p>
+                </div>
+              )}
+              <p className="text-subtle-medium text-gray-1 ml-2">
+                {comments.length} repl{comments.length > 1 ? "ies" : "y"}
+              </p>
+            </div>
+          </Link>
+        )}
+
+        {likes.length > 0 && comments.length > 0 && (
+          <p className="text-gray-1 mx-2">-</p>
+        )}
+
+        {likes.length > 0 && (
+          <div className="flex items-center">
+            <p className="text-subtle-medium text-gray-1">
+              {likes.length} like{likes.length > 1 && "s"}
+            </p>
+          </div>
+        )}
+      </div>
     </article>
   );
 }

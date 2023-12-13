@@ -63,7 +63,7 @@ function CommunityCard({
                 height={28}
                 className={`${
                   index !== 0 && "-ml-2"
-                } rounded-full object-cover`}
+                } rounded-full object-cover w-7 h-7 avatar-image`}
               />
             ))}
             {members.length > 3 && (
