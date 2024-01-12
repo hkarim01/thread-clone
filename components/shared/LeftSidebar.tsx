@@ -1,4 +1,5 @@
 "use client";
+
 import { sidebarLinks } from "@/constants";
 import { appRoutes } from "@/lib/route_map";
 import { SignedIn, SignOutButton, useAuth } from "@clerk/nextjs";
@@ -27,7 +28,9 @@ const LeftSidebar = () => {
             <Link
               href={link.route}
               key={link.label}
-              className={`leftsidebar_link ${isActive && "bg-primary-500"}`}
+              className={` ${
+                isActive ? "bg-primary-500" : ""
+              } leftsidebar_link`}
             >
               <Image
                 src={link.imgURL}

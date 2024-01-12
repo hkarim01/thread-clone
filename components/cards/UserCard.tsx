@@ -5,21 +5,30 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "../ui/button";
 import { appRoutes } from "@/lib/route_map";
+import FollowButton from "../shared/FollowButton";
 
 export interface UserCardProps {
+  currentUserId: string;
+  accountIdObject: string;
   id: string;
   name: string;
   username: string;
   imgUrl: string;
   personType: string;
+  showButton?: boolean;
+  showUnfollow?: boolean;
 }
 
 const UserCard = ({
+  currentUserId,
+  accountIdObject,
   id,
   name,
   username,
   imgUrl,
   personType,
+  showButton = true,
+  showUnfollow = false,
 }: UserCardProps) => {
   const router = useRouter();
 
@@ -43,18 +52,27 @@ const UserCard = ({
         </div>
       </div>
 
-      <Button
-        className="user-card_btn"
-        onClick={() => {
-          if (isCommunity) {
-            router.push(appRoutes.communities());
-          } else {
-            router.push(appRoutes.profile(id));
-          }
-        }}
-      >
-        View
-      </Button>
+      {showButton &&
+        (showUnfollow ? (
+          <FollowButton
+            accountId={accountIdObject}
+            isFollowed={true}
+            currentUserId={currentUserId}
+          />
+        ) : (
+          <Button
+            className="user-card_btn"
+            onClick={() => {
+              if (isCommunity) {
+                router.push(appRoutes.communities());
+              } else {
+                router.push(appRoutes.profile(id));
+              }
+            }}
+          >
+            View
+          </Button>
+        ))}
     </article>
   );
 };

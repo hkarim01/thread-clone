@@ -3,7 +3,7 @@
 import { likeThread } from "@/lib/actions/thread.actions";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export interface ReactButtonProps {
   threadId: string;
@@ -15,8 +15,12 @@ const ReactButton = ({ threadId, userId, likes }: ReactButtonProps) => {
   threadId = JSON.parse(threadId);
   userId = JSON.parse(userId);
 
-  const [isLiked, setIsLiked] = useState(likes?.includes(userId));
+  const [isLiked, setIsLiked] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => {
+    setIsLiked(likes?.includes(userId));
+  }, [likes, userId]);
 
   const reactToThread = async () => {
     const currentState = isLiked;
@@ -29,6 +33,7 @@ const ReactButton = ({ threadId, userId, likes }: ReactButtonProps) => {
       path: pathname,
     });
   };
+
   return (
     <Image
       src={isLiked ? "/assets/heart-filled.svg" : "/assets/heart-gray.svg"}

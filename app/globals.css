@@ -5,7 +5,7 @@
 @layer components {
   /* main */
   .main-container {
-    @apply flex min-h-screen flex-1 flex-col items-center bg-dark-1 px-6 pb-10 pt-28 max-md:pb-32 sm:px-10;
+    @apply flex min-h-screen flex-1 flex-col items-center bg-dark-1 px-6 pb-2 pt-20 max-md:pb-20 sm:px-10;
   }
 
   /* Head Text */
@@ -87,7 +87,7 @@
   }
 
   .rightsidebar {
-    @apply sticky right-0 top-0 z-20 flex h-screen w-fit flex-col justify-between gap-12 overflow-auto border-l border-l-dark-4 bg-dark-2 px-10 pb-6 pt-28 max-xl:hidden;
+    @apply sticky right-0 top-0 z-20 flex h-screen w-fit flex-col justify-between gap-6 overflow-auto border-l border-l-dark-4 bg-dark-2 px-10 pb-6 pt-28 max-xl:hidden;
   }
 }
 
@@ -140,7 +140,7 @@
 
 /* Account Profile  */
 .account-form_image-label {
-  @apply flex h-24 w-24 items-center justify-center rounded-full bg-dark-4 !important;
+  @apply flex h-12 w-12 md:h-24 md:w-24 items-center justify-center rounded-full bg-dark-4 !important;
 }
 
 .account-form_image-input {
@@ -158,6 +158,15 @@
 
 .comment-form_btn {
   @apply rounded-3xl bg-primary-500 px-8 py-2 !text-small-regular text-light-1 max-xs:w-full !important;
+}
+
+/* Message Form */
+.message-form {
+  @apply mt-10 flex items-center gap-4 border-y border-y-dark-4 py-5 !important;
+}
+
+.message-form_btn {
+  @apply bg-primary-500 px-3 w-10 h-10 text-light-1 rounded-full;
 }
 
 .avatar-image {

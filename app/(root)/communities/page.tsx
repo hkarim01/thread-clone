@@ -28,7 +28,7 @@ const page = async ({
     <section>
       <h1 className="head-text mb-10">Communities</h1>
 
-      <Searchbar routeType="communities" />
+      <Searchbar routeType="communities" placeholder="Search communities" />
 
       <div className="mt-14 flex flex-col gap-9">
         {searchResults.communities.length === 0 ? (

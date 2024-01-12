@@ -90,26 +90,26 @@ export async function fetchCommunityThreads(id: string) {
   try {
     connectToDB();
 
-    const communityPosts = await Community.findById(id).populate({
-      path: "threads",
-      model: Thread,
-      populate: [
-        {
+    const communityPosts = await Thread.find({ community: id })
+      .populate({
+        path: "author",
+        model: User,
+        select: "name image id", // Select the "name" and "_id" fields from the "User" model
+      })
+      .populate({
+        path: "community",
+        model: Community,
+        select: "name id image _id",
+      })
+      .populate({
+        path: "children",
+        model: Thread,
+        populate: {
           path: "author",
           model: User,
-          select: "name image id", // Select the "name" and "_id" fields from the "User" model
+          select: "image _id", // Select the "name" and "_id" fields from the "User" model
         },
-        {
-          path: "children",
-          model: Thread,
-          populate: {
-            path: "author",
-            model: User,
-            select: "image _id", // Select the "name" and "_id" fields from the "User" model
-          },
-        },
-      ],
-    });
+      });
 
     return communityPosts;
   } catch (error) {
@@ -118,6 +118,38 @@ export async function fetchCommunityThreads(id: string) {
     throw error;
   }
 }
+// export async function fetchCommunityThreads(id: string) {
+//   try {
+//     connectToDB();
+
+//     const communityPosts = await Community.findById(id).populate({
+//       path: "threads",
+//       model: Thread,
+//       populate: [
+//         {
+//           path: "author",
+//           model: User,
+//           select: "name image id", // Select the "name" and "_id" fields from the "User" model
+//         },
+//         {
+//           path: "children",
+//           model: Thread,
+//           populate: {
+//             path: "author",
+//             model: User,
+//             select: "image _id", // Select the "name" and "_id" fields from the "User" model
+//           },
+//         },
+//       ],
+//     });
+
+//     return communityPosts;
+//   } catch (error) {
+//     // Handle any errors
+//     console.error("Error fetching community posts:", error);
+//     throw error;
+//   }
+// }
 
 export async function fetchCommunities({
   searchString = "",

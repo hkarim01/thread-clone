@@ -1,7 +1,7 @@
 "use client";
 
-import { User } from "@/types";
-import { ChangeEvent, FC, useEffect, useState } from "react";
+import { UserResponse } from "@/types";
+import { ChangeEvent, FC, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -11,6 +11,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,21 +31,28 @@ import Image from "next/image";
 import { Textarea } from "../ui/textarea";
 import { isBase64Image } from "@/lib/utils";
 import { useUploadThing } from "@/lib/uploadthing";
-import { updateUser } from "@/lib/actions/user.actions";
+import { deleteUser, updateUser } from "@/lib/actions/user.actions";
 import { usePathname, useRouter } from "next/navigation";
 import { appRoutes } from "@/lib/route_map";
+import { useUser } from "@clerk/nextjs";
 
 export interface AccountProfileProps {
-  user: User;
+  user: UserResponse;
   btnTitle: string;
+  showDeleteButton?: boolean;
 }
 
-const AccountProfile: FC<AccountProfileProps> = ({ user, btnTitle }) => {
+const AccountProfile: FC<AccountProfileProps> = ({
+  user,
+  btnTitle,
+  showDeleteButton = false,
+}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const { startUpload } = useUploadThing("media");
   const pathname = usePathname();
   const router = useRouter();
+  const { user: clerkUser } = useUser();
 
   const form = useForm({
     resolver: zodResolver(UserValidation),
@@ -78,6 +96,7 @@ const AccountProfile: FC<AccountProfileProps> = ({ user, btnTitle }) => {
     try {
       if (hasImageChanged) {
         const imgRes = await startUpload(files);
+        await clerkUser?.setProfileImage({ file: blob });
 
         if (imgRes && imgRes[0].url) {
           values.profile_photo = imgRes[0].url;
@@ -93,16 +112,25 @@ const AccountProfile: FC<AccountProfileProps> = ({ user, btnTitle }) => {
         path: pathname,
       });
     } catch (error) {
+      console.log("Error saving the data: ", error);
       throw error;
-    } finally {
-      setIsLoading(false);
     }
+    //  finally {
+    //   setIsLoading(false);
+    // }
 
-    if (pathname === appRoutes.editProfile()) {
+    if (pathname === appRoutes.editProfile(user.id)) {
       router.back();
     } else {
       router.push(appRoutes.home());
     }
+  };
+
+  const handleDeleteUser = async () => {
+    setIsLoading(true);
+    await deleteUser(JSON.parse(user._id));
+    await clerkUser?.delete();
+    router.push(appRoutes.signIn());
   };
 
   return (
@@ -124,7 +152,7 @@ const AccountProfile: FC<AccountProfileProps> = ({ user, btnTitle }) => {
                     width={96}
                     height={96}
                     priority
-                    className="rounded-full object-cover w-24 h-24"
+                    className="rounded-full object-cover w-12 h-12 md:w-24 md:h-24"
                   />
                 ) : (
                   <Image
@@ -212,6 +240,33 @@ const AccountProfile: FC<AccountProfileProps> = ({ user, btnTitle }) => {
         <Button type="submit" className="bg-primary-500" isLoading={isLoading}>
           {btnTitle}
         </Button>
+        {showDeleteButton && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant={"destructive"} isLoading={isLoading}>
+                Delete Account
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete
+                  your account and all the related data.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-red-400"
+                  onClick={handleDeleteUser}
+                >
+                  {isLoading ? "please wait..." : "Continue"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </form>
     </Form>
   );
