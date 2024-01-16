@@ -41,16 +41,16 @@ export async function createThread({
     });
 
     // Update user
-    await User.findByIdAndUpdate(author, {
-      $push: { threads: createdThread._id },
-    });
+    // await User.findByIdAndUpdate(author, {
+    //   $push: { threads: createdThread._id },
+    // });
 
-    if (communityIdObject) {
-      // Update Community model
-      await Community.findByIdAndUpdate(communityIdObject, {
-        $push: { threads: createdThread._id },
-      });
-    }
+    // if (communityIdObject) {
+    //   // Update Community model
+    //   await Community.findByIdAndUpdate(communityIdObject, {
+    //     $push: { threads: createdThread._id },
+    //   });
+    // }
 
     revalidatePath(path);
   } catch (error: any) {
@@ -130,6 +130,40 @@ export async function fetchThreads(pageNumber = 1, pageSize = 20) {
     return { threads, isNext };
   } catch (error: any) {
     throw new Error(`Failed to fetch the threads: ${error.message}`);
+  }
+}
+
+export async function deleteThread({
+  threadId,
+  path,
+}: {
+  threadId: string;
+  path: string;
+}) {
+  try {
+    const originalThread = await Thread.findById(threadId);
+    if (!originalThread) {
+      throw new Error(`Invalid thread id: ${threadId}`);
+    }
+    const threadComments = originalThread.children;
+
+    await Thread.findByIdAndDelete(threadId);
+
+    if (threadComments) {
+      await Thread.deleteMany({ parentId: { $in: threadComments } });
+      await Thread.deleteMany({ _id: { $in: threadComments } });
+    }
+
+    if (originalThread.parentId) {
+      await Thread.findByIdAndUpdate(originalThread.parentId, {
+        $pull: { children: originalThread._id },
+      });
+    }
+
+    revalidatePath(path);
+  } catch (error) {
+    console.log("Error deleting the thread", error);
+    throw error;
   }
 }
 

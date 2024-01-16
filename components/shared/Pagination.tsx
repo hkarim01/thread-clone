@@ -36,15 +36,15 @@ const Pagination = ({ pageNumber, isNext, path }: PaginationProps) => {
       <Button
         onClick={() => handleNavigation("prev")}
         disabled={pageNumber === 1}
-        className="!text-small-regular text-light-2"
+        className="!text-small-regular text-light-2 disabled:cursor-pointer"
       >
         Prev
       </Button>
-      <p className="text-small-semibold text-light-1">{pageNumber}</p>
+      <p className="text-small-semibold text-light-1 ">{pageNumber}</p>
       <Button
         onClick={() => handleNavigation("next")}
         disabled={!isNext}
-        className="!text-small-regular text-light-2"
+        className="!text-small-regular text-light-2 disabled:cursor-not-allowed"
       >
         Next
       </Button>

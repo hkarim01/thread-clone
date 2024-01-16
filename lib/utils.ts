@@ -31,6 +31,15 @@ export function formatDateString(dateString: string) {
   return `${time} - ${formattedDate}`;
 }
 
+export function formatTimeString(dateString: string) {
+  const date = new Date(dateString);
+
+  return date.toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
 // created by chatgpt
 export function formatThreadCount(count: number): string {
   if (count === 0) {
@@ -40,4 +49,8 @@ export function formatThreadCount(count: number): string {
     const threadWord = count === 1 ? "Thread" : "Threads";
     return `${threadCount} ${threadWord}`;
   }
+}
+
+export function JsonToPlainObject(jsonObject: any) {
+  return JSON.parse(JSON.stringify(jsonObject));
 }

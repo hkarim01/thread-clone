@@ -1,6 +1,6 @@
 import AccountProfile from "@/components/forms/AccountProfile";
 import { fetchUser } from "@/lib/actions/user.actions";
-import { User } from "@/types";
+import { UserResponse } from "@/types";
 import { currentUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 import React from "react";
@@ -12,9 +12,9 @@ const page = async () => {
   const userInfo = await fetchUser(user.id);
   if (userInfo?.onboarded) redirect("/");
 
-  const userData: User = {
+  const userData: UserResponse = {
     id: user?.id,
-    objectId: JSON.stringify(userInfo?._id),
+    _id: JSON.stringify(userInfo?._id),
     username: userInfo?.username || user?.username || "",
     name: userInfo?.name || `${user?.firstName}${user?.lastName}` || "",
     bio: userInfo?.bio || "",

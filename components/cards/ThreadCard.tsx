@@ -2,8 +2,10 @@ import { appRoutes } from "@/lib/route_map";
 import { formatDateString } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "../ui/button";
 import ReactButton from "../shared/ReactButton";
+import ThreadDeleteButton from "../shared/ThreadDeleteButton";
+import ShareButton from "../shared/ShareButton";
+import RepostButton from "../shared/RepostButton";
 
 interface ThreadCardProps {
   id: string;
@@ -29,6 +31,7 @@ interface ThreadCardProps {
     };
   }[];
   isComment?: boolean;
+  allowComments?: boolean;
 }
 
 function ThreadCard({
@@ -42,15 +45,17 @@ function ThreadCard({
   likes,
   comments,
   isComment,
+  allowComments = true,
 }: ThreadCardProps) {
   const threadIdObject = JSON.parse(id);
+  const isOwner = currentUserId === JSON.stringify(author._id);
 
   const commentAuthorImages = comments?.reduce((acc: string[], comment) => {
-    // if (!acc.includes(comment.author.image)) {
-    return acc.concat(comment.author.image);
-    // } else {
-    //   return acc;
-    // }
+    if (!acc.includes(comment.author.image)) {
+      return acc.concat(comment.author.image);
+    } else {
+      return acc;
+    }
   }, []);
 
   return (
@@ -79,11 +84,15 @@ function ThreadCard({
           </div>
 
           <div className="flex w-full flex-col">
-            <Link href={appRoutes.profile(author.id)} className="w-fit">
-              <h4 className="cursor-pointer text-base-semibold text-light-1">
-                {author.name}
-              </h4>
-            </Link>
+            <div className="flex w-full justify-between">
+              <Link href={appRoutes.profile(author.id)} className="w-fit">
+                <h4 className="cursor-pointer text-base-semibold text-light-1">
+                  {author.name}
+                </h4>
+              </Link>
+
+              {isOwner && <ThreadDeleteButton threadId={id} />}
+            </div>
 
             <p className="mt-2 text-small-regular text-light-2">{content}</p>
 
@@ -94,105 +103,138 @@ function ThreadCard({
                   userId={currentUserId}
                   likes={likes}
                 />
-                <Link href={appRoutes.thread(threadIdObject)}>
-                  <Image
-                    src="/assets/reply.svg"
-                    alt="heart"
-                    width={24}
-                    height={24}
-                    className="cursor-pointer object-contain"
-                  />
-                </Link>
-                <Image
+                {allowComments && (
+                  <Link href={appRoutes.thread(threadIdObject)}>
+                    <Image
+                      src="/assets/reply.svg"
+                      alt="heart"
+                      width={24}
+                      height={24}
+                      className="cursor-pointer object-contain"
+                    />
+                  </Link>
+                )}
+                {/* <Image
                   src="/assets/repost.svg"
                   alt="heart"
                   width={24}
                   height={24}
                   className="cursor-pointer object-contain"
-                />
-                <Image
+                  onClick={() => {
+                    toast({
+                      description: "Your message has been sent.",
+                    });
+                  }}
+                /> */}
+                <RepostButton />
+                <ShareButton link={appRoutes.thread(threadIdObject)} />
+                {/* <Image
                   src="/assets/share.svg"
                   alt="heart"
                   width={24}
                   height={24}
                   className="cursor-pointer object-contain"
-                />
+                /> */}
               </div>
+              {isComment && (
+                <div className="flex items-center mt-1">
+                  {comments.length > 0 && (
+                    <Link href={appRoutes.thread(threadIdObject)}>
+                      <p className="text-subtle-medium text-gray-1">
+                        {comments.length} repl
+                        {comments.length > 1 ? "ies" : "y"}
+                      </p>
+                    </Link>
+                  )}
 
-              {isComment && comments.length > 0 && (
-                <Link href={appRoutes.thread(threadIdObject)}>
-                  <p className="mt-1 text-subtle-medium text-gray-1">
-                    {comments.length} repl{comments.length > 1 ? "ies" : "y"}
-                  </p>
-                </Link>
+                  {likes.length > 0 && comments.length > 0 && (
+                    <p className="text-gray-1 mx-2">|</p>
+                  )}
+
+                  {likes.length > 0 && (
+                    <div className="flex items-center">
+                      <p className="text-subtle-medium text-gray-1">
+                        {likes.length} like{likes.length > 1 && "s"}
+                      </p>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>
         </div>
       </div>
 
-      {!isComment && community && (
-        <Link
-          href={`/communities/${community.id}`}
-          className="mt-5 flex items-center"
-        >
-          <p className="text-subtle-medium text-gray-1">
-            {formatDateString(createdAt)}
-            {community && ` - ${community.name} Community`}
-          </p>
-
-          <Image
-            src={community.image}
-            alt={community.name}
-            width={20}
-            height={20}
-            className="ml-1 rounded-full object-cover"
-          />
-        </Link>
-      )}
-
-      <div className="flex items-center mt-4">
-        {!isComment && comments.length > 0 && (
-          <Link href={appRoutes.thread(threadIdObject)}>
-            <div className="flex items-center">
-              {commentAuthorImages.slice(0, 3).map((image, index) => (
-                <Image
-                  key={index}
-                  src={image}
-                  alt={`user_${index}`}
-                  width={28}
-                  height={28}
-                  className={`${
-                    index !== 0 && "-ml-2"
-                  } rounded-full object-cover w-7 h-7 avatar-image`}
-                />
-              ))}
-              {commentAuthorImages.length > 3 && (
-                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-gray-500 -ml-2 avatar-image">
-                  <p className="text-tiny-medium text-light-1">
-                    +{commentAuthorImages.length - 3}
+      {!isComment && (
+        <>
+          <div className="flex items-center mt-4">
+            {comments.length > 0 && (
+              <Link href={appRoutes.thread(threadIdObject)}>
+                <div className="flex items-center">
+                  {commentAuthorImages.slice(0, 3).map((image, index) => (
+                    <Image
+                      key={index}
+                      src={image}
+                      alt={`user_${index}`}
+                      width={28}
+                      height={28}
+                      className={`${
+                        index !== 0 && "-ml-2"
+                      } rounded-full object-cover w-7 h-7 avatar-image`}
+                    />
+                  ))}
+                  {commentAuthorImages.length > 3 && (
+                    <div className="flex items-center justify-center w-7 h-7 rounded-full bg-gray-500 -ml-2 avatar-image">
+                      <p className="text-tiny-medium text-light-1">
+                        +{commentAuthorImages.length - 3}
+                      </p>
+                    </div>
+                  )}
+                  <p className="text-subtle-medium text-gray-1 ml-2">
+                    {comments.length} repl{comments.length > 1 ? "ies" : "y"}
                   </p>
                 </div>
-              )}
-              <p className="text-subtle-medium text-gray-1 ml-2">
-                {comments.length} repl{comments.length > 1 ? "ies" : "y"}
-              </p>
-            </div>
-          </Link>
-        )}
+              </Link>
+            )}
 
-        {likes.length > 0 && comments.length > 0 && (
-          <p className="text-gray-1 mx-2">-</p>
-        )}
+            {likes.length > 0 && comments.length > 0 && (
+              <p className="text-gray-1 mx-2">-</p>
+            )}
 
-        {likes.length > 0 && (
-          <div className="flex items-center">
-            <p className="text-subtle-medium text-gray-1">
-              {likes.length} like{likes.length > 1 && "s"}
-            </p>
+            {likes.length > 0 && (
+              <div className="flex items-center">
+                <p className="text-subtle-medium text-gray-1">
+                  {likes.length} like{likes.length > 1 && "s"}
+                </p>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+
+          <div className="mt-5 flex items-center">
+            <p className="text-subtle-medium text-gray-1">
+              {formatDateString(createdAt)}
+            </p>
+            {community && (
+              <Link
+                href={appRoutes.communities(community.id)}
+                className="flex items-center"
+              >
+                <p className="text-subtle-medium text-gray-1 ml-1">
+                  {`- ${community.name} Community`}
+                </p>
+
+                <Image
+                  src={community.image}
+                  alt={community.name}
+                  width={20}
+                  height={20}
+                  className="ml-1 rounded-full object-cover"
+                />
+              </Link>
+            )}
+          </div>
+        </>
+      )}
     </article>
   );
 }

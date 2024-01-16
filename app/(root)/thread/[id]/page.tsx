@@ -7,6 +7,7 @@ import { currentUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 
 const page = async ({ params }: { params: { id: string } }) => {
+  let threadLevel = 2;
   if (!params.id) return null;
 
   const user = await currentUser();
@@ -16,6 +17,13 @@ const page = async ({ params }: { params: { id: string } }) => {
   if (!userInfo.onboarded) redirect(appRoutes.onboarding());
 
   const thread = await fetchThreadById(params.id);
+
+  threadLevel = !thread.parentId ? 0 : 2;
+
+  if (threadLevel === 2) {
+    const parentThread = await fetchThreadById(thread.parentId);
+    threadLevel = !parentThread.parentId ? 1 : 2;
+  }
 
   return (
     <section className="relative">
@@ -31,17 +39,20 @@ const page = async ({ params }: { params: { id: string } }) => {
           createdAt={thread.createdAt}
           likes={thread.likes}
           comments={thread.children}
-          isComment={false}
+          isComment={threadLevel > 0}
+          allowComments={threadLevel < 2}
         />
       </div>
 
-      <div className="mt-7">
-        <Comment
-          threadId={params.id}
-          currentUserImg={userInfo.image}
-          currentUserId={JSON.stringify(userInfo._id)}
-        />
-      </div>
+      {threadLevel < 2 && (
+        <div className="mt-7">
+          <Comment
+            threadId={params.id}
+            currentUserImg={userInfo.image}
+            currentUserId={JSON.stringify(userInfo._id)}
+          />
+        </div>
+      )}
 
       <div className="mt-10">
         {thread.children.map((childThread: any) => (
@@ -54,9 +65,10 @@ const page = async ({ params }: { params: { id: string } }) => {
             author={childThread.author}
             community={childThread.community}
             createdAt={childThread.createdAt}
-            likes={thread.likes}
+            likes={childThread.likes}
             comments={childThread.children}
             isComment={true}
+            allowComments={threadLevel === 0}
           />
         ))}
       </div>

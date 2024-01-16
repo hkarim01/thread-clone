@@ -27,7 +27,7 @@ const page = async ({
     <section>
       <h1 className="head-text mb-10">Search</h1>
 
-      <Searchbar routeType="search" />
+      <Searchbar routeType="search" placeholder="Search creators" />
 
       <div className="mt-14 flex flex-col gap-9">
         {searchResults.users.length === 0 ? (
@@ -37,6 +37,8 @@ const page = async ({
             {searchResults.users.map((person) => (
               <UserCard
                 key={person.id}
+                currentUserId={JSON.stringify(userInfo._id)}
+                accountIdObject={JSON.stringify(person._id)}
                 id={person.id}
                 name={person.name}
                 username={person.username}
