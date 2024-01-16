@@ -22,10 +22,12 @@ const config: Config = {
   // modulePathIgnorePatterns: ["<rootDir>/lib/models", "<rootDir>/lib/actions"],
 };
 
-module.exports = async () => ({
-  ...(await createJestConfig(config)()),
+// module.exports = async () => ({
+//   ...(await createJestConfig(config)()),
 
-  transformIgnorePatterns: ["<rootDir>/lib/actions", "<rootDir>/lib/models"],
-});
+//   // transformIgnorePatterns: ["<rootDir>/lib/actions", "<rootDir>/lib/models"],
+//   transformIgnorePatterns: ["<rootDir>/lib/models"],
+//   modulePathIgnorePatterns: ["<rootDir>/lib/models"],
+// });
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
 export default createJestConfig(config);
